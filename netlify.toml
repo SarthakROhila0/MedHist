@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# Netlify config for MediHist (pure static site - no build step needed)
+# ---------------------------------------------------------------------------
+[build]
+  # There is nothing to compile: the app is a single static index.html.
+  # "command" is deliberately empty, "publish" is the repo/folder root.
+  command = ""
+  publish = "."
+
+# Never cache the HTML (so a new deploy is visible immediately),
+# but do cache versioned assets if you add any later.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    # -----------------------------------------------------------------------
+    # Content-Security-Policy, tuned to exactly what this page does:
+    #   script-src  cdn.jsdelivr.net  -> the supabase-js CDN tag
+    #   'unsafe-inline'               -> the inline <script> and onclick="..." handlers
+    #   connect-src *.supabase.co    -> the data API (https) + realtime (wss)
+    # If anything ever looks broken after a deploy, delete just this one line
+    # and redeploy - the app works fine without it.
+    # -----------------------------------------------------------------------
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
